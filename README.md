@@ -14,3 +14,6 @@ Also note that the probability distribution of the numbers is generated using th
 If you want to change this to suit your own practice needs, all you have to do is change up the getNewHitter() function at the top of the python file.
 
 If you want to add 3 Dart checkouts you would also need to add an other digit to the Hitter display, you can just ask me though, as this part of the code is somewhat messi.
+
+# Preview
+![Preview of Game](https://raw.github.com/bjoernveit/BaseDart/master/preview.PNG)
