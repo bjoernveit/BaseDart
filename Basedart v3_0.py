@@ -184,7 +184,9 @@ def miss():
     elif (i <= SProb + HRProb + DProb + StrikeProb):
         # Strike        
         PlayAnimation(BAnimations['Strike'])
+        global Strikes
         Strikes += 1
+        CheckAndHandleStrikeout()
         bHit = False
     else:
         # Ball
@@ -254,7 +256,7 @@ def CheckAndHandleStrikeout():
                         
             
             Outs = 0
-        
+        global Hitter
         Hitter = getNewHitter()
     
 #main
