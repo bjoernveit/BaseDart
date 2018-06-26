@@ -13,18 +13,20 @@ def getNewHitter():
 def IsCaught(Hit):
     r = random.random()
     if(Hit == 1):
-        if r < 0.04:
-            print("CAUGHT!")
+        if r < 0.10:
+            PlayAnimation('Animation/Catch.gif', False)
             return True
     elif(Hit == 2):
-        if r < 0.02:
-            print("CAUGHT!")
+        if r < 0.05:
+            PlayAnimation('Animation/Catch.gif', False)
             return True
     elif(Hit == 4):
-        if r < 0.005:
-            print("ROBBED!")
+        if r < 0.01:
+            PlayAnimation('Animation/Catch.gif', False)
             return True
 
+
+    PlayAnimation('Animation/NoCatch.gif', False)
     return False
 
 def ChangeNumber(Key, Number):
@@ -46,7 +48,7 @@ def ChangeNumber(Key, Number):
            'Runs'   : (0,9,2)
            }
 
-    
+
     if((Number < 10 and Number != -1) or 'Inning' in Key):
         if(Number == OFF):
             Label(Frames[Dic[Key][2]], image=NumberImages[10], border=0).grid(row=Dic[Key][0], column=Dic[Key][1], sticky=SE)
@@ -92,7 +94,6 @@ def MoveOnBases(n):
     Bases = Bases[0:3]
     updateBasePic()
 
-
 def updateBasePic():
     #load new Picture
     Name = "Bases/"
@@ -106,12 +107,11 @@ def updateBasePic():
         Name += "Empty"
     Name += ".gif"
 
-    global BasesPic    
+    global BasesPic
     BasesPic = PhotoImage(file=Name)
     BasesLabel.config(image = BasesPic)
     BasesFrame.update()
-    
-    
+
 def walk():
     if(Bases[0]):
         if(Bases[1]):
@@ -123,11 +123,9 @@ def walk():
     Bases[0] = True
     updateBasePic()
 
-    
 def strike():
-    StrikeBtn['state']  = 'disabled'
-    MissBtn['state']  = 'disabled'
-    global Strikes    
+    deactivateBtns()
+    global Strikes
     global Misses
     global PitchCount
     global Outs
@@ -137,10 +135,10 @@ def strike():
     SProb = 0.04
     bHit = True
     i = random.random()
-    print(i)
+    #print(i)
     if(i <= HRProb):
         #HR
-        PlayAnimation(SZAnimations['HR'])
+        PlayAnimation(SZAnimations['HR'], True)
         if(not IsCaught(4)):
             MoveOnBases(4)
         else:
@@ -148,7 +146,7 @@ def strike():
             CheckAndHandleOut
     elif (i <= HRProb + DProb):
         # double
-        PlayAnimation(SZAnimations['Double'])
+        PlayAnimation(SZAnimations['Double'], True)
         if(not IsCaught(2)):
             MoveOnBases(2)
         else:
@@ -156,86 +154,98 @@ def strike():
             CheckAndHandleOut
     elif (i <= SProb + HRProb + DProb):
         # single
-        PlayAnimation(SZAnimations['Single'])
+        PlayAnimation(SZAnimations['Single'], True)
         if(not IsCaught(1)):
             MoveOnBases(1)
         else:
             Outs += 1
     else:
         # Strike
-        PlayAnimation(SZAnimations['Strike'])
+        PlayAnimation(SZAnimations['Strike'], True)
         Strikes += 1
         bHit = False
-     
+
     PitchCount += 1
-    
+
     if(bHit):
         Strikes = 0
         Misses = 0
-        
+
         global Hitter
         Hitter = getNewHitter()
-    
+
     CheckAndHandleOut()
     CheckAndHandleStrikeout()
     UpdateTop()
     if(GAMERUNNING):
-        StrikeBtn['state']  = 'normal'
-        MissBtn['state']  = 'normal'
+        activateBtns()
+
+def perfect():
+    deactivateBtns()
+    global Strikes
+    global PitchCount
+
+    PlayAnimation(SZAnimations['Strike'], True)
+    Strikes += 1
+    PitchCount += 1
+
+    CheckAndHandleStrikeout()
+    UpdateTop()
+    if(GAMERUNNING):
+        activateBtns()
 
 def miss():
-    
-    StrikeBtn['state']  = 'disabled'
-    MissBtn['state']  = 'disabled'
+
+    deactivateBtns()
     global Misses
     global Strikes
     global PitchCount
     global Outs
 
-    HRProb = 0.03
-    DProb  = 0.05
+    HRProb = 0.02
+    DProb  = 0.06
     SProb = 0.10
     StrikeProb = 0.07
-    
-    
+
+
     bHit = True
     i = random.random()
-    print(i)
+    #print(i)
     if(i <= HRProb):
         #HR
-        PlayAnimation(BAnimations['HR'])
+        PlayAnimation(BAnimations['HR'], True)
         if(not IsCaught(4)):
             MoveOnBases(4)
         else:
             Outs += 1
     elif (i <= HRProb + DProb):
         # double
-        PlayAnimation(BAnimations['Double'])
+        PlayAnimation(BAnimations['Double'], True)
         if(not IsCaught(2)):
             MoveOnBases(2)
         else:
             Outs += 1
     elif (i <= SProb + HRProb + DProb):
         # single
-        PlayAnimation(BAnimations['Single'])
+        PlayAnimation(BAnimations['Single'], True)
         if(not IsCaught(1)):
             MoveOnBases(1)
         else:
-            Outs += 1     
+            Outs += 1
     elif (i <= SProb + HRProb + DProb + StrikeProb):
-        # Strike        
-        PlayAnimation(BAnimations['Strike'])
+        # Strike
+        PlayAnimation(BAnimations['Strike'], True)
         Strikes += 1
         CheckAndHandleStrikeout()
         bHit = False
     else:
         # Ball
-        PlayAnimation(BAnimations['Ball'])
-        bHit = False       
+        PlayAnimation(BAnimations['Ball'], True)
+        bHit = False
         Misses += 1
 
     CheckAndHandleOut()
-    
+
     PitchCount += 1
     if(Misses == 4 or bHit):
         if(Misses == 4):
@@ -244,24 +254,49 @@ def miss():
         Misses = 0
         global Hitter
         Hitter = getNewHitter()
-        
+
     UpdateTop()
     if(GAMERUNNING):
-        StrikeBtn['state']  = 'normal'
-        MissBtn['state']  = 'normal'
+        activateBtns()
 
-def PlayAnimation(FileName) :
-  FrameNumber = 24
-  counter = 0
-  global AnimationPic
+def PlayAnimation(FileName, isSwingAnimation) :
+    global FieldManPic
+    global StandingFildManPic
+    FieldManLabel.config(image = StandingFildManPic)
+    FieldManFrame.update()
 
-  while counter < FrameNumber :
-    
-    AnimationPic = PhotoImage(file=FileName, format="gif -index " + str(counter))
-    AnimationLabel.config(image = AnimationPic)
-    AnimationFrame.update()
-    counter += 1
-    
+    counter = 0
+    if(isSwingAnimation):
+        FrameNumber = 24
+        global AnimationPic
+
+        while counter < FrameNumber :
+
+            AnimationPic = PhotoImage(file=FileName, format="gif -index " + str(counter))
+            AnimationLabel.config(image = AnimationPic)
+            AnimationFrame.update()
+            counter += 1
+    else:
+        FrameNumber = 24
+
+
+        while counter < FrameNumber :
+
+           FieldManPic = PhotoImage(file=FileName, format="gif -index " + str(counter))
+           FieldManLabel.config(image = FieldManPic)
+           FieldManFrame.update()
+           counter += 1
+
+def deactivateBtns():
+    global Btns
+    for B in Btns:
+        B['state'] = 'disabled'
+
+def activateBtns():
+    global Btns
+    for B in Btns:
+        B['state'] = 'normal'
+
 def CheckAndHandleStrikeout():
     global Strikes
     global Misses
@@ -271,8 +306,9 @@ def CheckAndHandleStrikeout():
         global Outs
         Outs += 1
         CheckAndHandleOut()
-        global Hitter
-        Hitter = getNewHitter()
+        if(GAMERUNNING):
+            global Hitter
+            Hitter = getNewHitter()
 
 def CheckAndHandleOut():
     global Outs
@@ -289,7 +325,7 @@ def CheckAndHandleOut():
             #Game End
             global GAMERUNNING
             GAMERUNNING = False
-                       
+
             StrikeBtn['state']  = 'disabled'
             MissBtn['state']  = 'disabled'
 
@@ -299,15 +335,15 @@ def CheckAndHandleOut():
             Outs = OFF
             UpdateTop()
             return
-                            
+
         else:
             Inning += 1
             RunsPerInning.append(0)
             ChangeNumber('Inning%d' % Inning, RunsPerInning[Inning-1])
-                        
+
         Hitter = getNewHitter()
         Outs = 0
-        
+
 #main
 
 print("How Many innings do you want to play?")
@@ -331,17 +367,28 @@ Bases = [False, False, False]
 # Setup Window
 #
 window.title('Basedart')
-window.configure(background='white')
-Boardframe1 = Frame(window)
+
+#icon = PhotoImage(file='icon50.gif')
+#window.tk.call('wm', 'iconphoto', window._w, icon)
+
+window.configure(background='light grey')
+window.grid_rowconfigure(0, pad=40)
+Board = Frame(window, border=5, relief="solid")
+Board.grid(row=0,column=0, sticky=N, pady=(40, 0))
+Boardframe1 = Frame(Board)
 Boardframe1.grid(row=0,column=0, sticky=W)
-Boardframe2 = Frame(window)
+Boardframe2 = Frame(Board)
 Boardframe2.grid(row=1,column=0, sticky=W)
 Boardframe2_1 = Frame(Boardframe2)
-Boardframe2_1.grid(row=1,column=0, sticky=W)
+Boardframe2_1.grid(row=0,column=0, sticky=W)
 Boardframe2_2 = Frame(Boardframe2)
-Boardframe2_2.grid(row=1,column=1, sticky=W)
-Boardframe3 = Frame(window)
+Boardframe2_2.grid(row=0,column=1, sticky=W)
+Boardframe3 = Frame(Board)
 Boardframe3.grid(row=2,column=0, sticky=W)
+
+BtnFrame = Frame(Boardframe2);
+BtnFrame.grid(row=0, column=0, sticky=W)
+BtnFrame.configure(background='white')
 
 Frames = [Boardframe1, Boardframe2_1, Boardframe2_2, Boardframe3]
 
@@ -353,8 +400,12 @@ AnimationFrame = Frame(BottomFrame)
 AnimationFrame.grid(row=0, column=0, sticky=W)
 
 BasesFrame = Frame(BottomFrame)
-BasesFrame.grid(row=0, column=1, sticky=W)
+BasesFrame.grid(row=0, column=1, sticky=N)
 BasesFrame.configure(background='white')
+
+FieldManFrame = Frame(BottomFrame)
+FieldManFrame.grid(row=0, column=2, sticky=W)
+
 
 
 #Backgorund
@@ -396,6 +447,9 @@ NumberImages = [N0, N1, N2, N3, N4, N5, N6, N7, N8, N9, Noff]
 #
 AnimationPic = PhotoImage(file="Animation/SZStrike.gif")
 BasesPic = PhotoImage(file="Bases/Empty.gif")
+StandingFildManPic = PhotoImage(file="Animation/Catch.gif")
+FieldManPic = StandingFildManPic
+
 
 SZAnimations = {'Strike' : "Animation/SZStrike.gif",
                 'Single' : "Animation/SZSingle.gif",
@@ -435,13 +489,21 @@ AnimationLabel.grid(row=0, column=0, sticky=W)
 
 BasesLabel = Label(BasesFrame, image=BasesPic, border=0)
 BasesLabel.configure(background='white')
-BasesLabel.grid(row=0, column=0, sticky=W)
+BasesLabel.grid(row=0, column=0, sticky=W, pady=(40,0))
+
+FieldManLabel = Label(FieldManFrame, image=FieldManPic, border=0)
+FieldManLabel.grid(row=0, column=0, sticky=W)
 
 #Buttons
-StrikeBtn = Button(Boardframe2_1, text="STRIKE", width=6, padx=20, pady=20, command=strike)
-StrikeBtn.grid(row=0, column=1, sticky=W)
-MissBtn = Button(Boardframe2_1, text="BALL", width=6, padx=20, pady=20, command=miss)
-MissBtn.grid(row=0, column=2,   sticky=W)
+LeftOffButton = PhotoImage(file="Board/l_off_btn.gif")
+Label(BtnFrame, image=LeftOffButton, border=0).grid(row=0, column=0, sticky=W)
+PerfectBtn = Button(BtnFrame, text="PERFECT", width=6, padx=20, pady=20, command=perfect)
+PerfectBtn.grid(row=0, column=1, sticky=E)
+StrikeBtn = Button(BtnFrame, text="STRIKE", width=6, padx=20, pady=20, command=strike)
+StrikeBtn.grid(row=0, column=2, sticky=E)
+MissBtn = Button(BtnFrame, text="BALL", width=6, padx=20, pady=20, command=miss)
+MissBtn.grid(row=0, column=3, sticky=E)
+Btns = [StrikeBtn, MissBtn, PerfectBtn]
 
 UpdateTop()
 ChangeNumber('Inning1', 0)
@@ -449,35 +511,5 @@ ChangeNumber('Runs', 0)
 GAMERUNNING = True
 
 window.mainloop()
-
-
-'''
-while(Inning <= MaxInnings):
-    FB = False;
-    SB = False;
-    TB = False;
-    
-    print("You are currently in the %d inning with %d outs, and gave up %d runs so far." % (Inning, Outs, Runs)) 
-    print("A new hitter (%d) steps to the plate." % getNewHitter())
-    while(Misses < 4 and Strikes <3):
-        PitchCount += 1
-        print("Pitch %d\nCount %d:%d" % (PitchCount, Misses, Strikes))
-        Throw = input()
-        if(Throw == 's'):
-            Strikes += 1
-        else:
-            Misses += 1
-
-    # update score
-    if(Strikes == 3):
-        print("STRIKEOUT!!!")
-        Outs += 1
-    else:
-        print("HOMERUN!!!")
-        Runs += 1
-
-    if(Outs == 3):
-        Inning += 1
-'''
 print("Total gamescore after %d innings:\n You gave up %d runs in %d pitches." % (Inning, Runs, PitchCount))
-input()        
+input()
