@@ -34,5 +34,7 @@ In this version bases and hit-probabilities added to the game. In other words it
 I added the the possibility for the defense (us) to catch a hit ball, which leads to an out. There is also a 
 "perfect"-Button, to reward you when you finished perfectly, as it was really frustrating playing perfect darts and getting scored on. If you hit the perfect button you will get a strike guaranteed. You should adjust the usage to you own skill level, for me I say it was perfect strike if I finish on the first trip to the board. 
 
+I am aware that the game is currently to big, for a full hd resolution or less (as it has a height of 1100px), I will fix this at some point.
+
 # Preview
 ![Preview of Game](https://raw.github.com/bjoernveit/BaseDart/master/preview.PNG)
