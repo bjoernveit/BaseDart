@@ -222,9 +222,9 @@ def PlayAnimation(FileName) :
     
 def CheckAndHandleStrikeout():
     global Strikes
-    global Misses
+    global Misses    
+    global Hitter
     if(Strikes == 3):
-        global Hitter
         Strikes = 0
         Misses = 0
         global Outs
@@ -256,7 +256,6 @@ def CheckAndHandleStrikeout():
                         
             
             Outs = 0
-        global Hitter
         Hitter = getNewHitter()
     
 #main
